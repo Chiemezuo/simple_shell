@@ -42,14 +42,14 @@ void (*check_for_builtins(vars_t *vars))(vars_t *vars)
 
 void new_exit(vars_t *vars)
 {
-	int status;
+	int root;
 
 	if (_strcmpr(vars->av[0], "exit") == 0 && vars->av[1] != NULL)
 	{
-		status = _atoi(vars->av[1]);
-		if (status == -1)
+		root = _atoi(vars->av[1]);
+		if (root == -1)
 		{
-			vars->status = 2;
+			vars->root = 2;
 			print_error(vars, ": Illegal number: ");
 			_puts2(vars->av[1]);
 			_puts2("\n");
@@ -57,27 +57,31 @@ void new_exit(vars_t *vars)
 			vars->commands = NULL;
 			return;
 		}
-		vars->status = status;
+		vars->root = root;
 	}
 	free(vars->buffer);
 	free(vars->av);
 	free(vars->commands);
 	free_env(vars->env);
-	exit(vars->status);
+	exit(vars->root);
 }
 
 /**
- * _env - prints the current environment
- * @vars: struct of variables
+ * _env - This function prints the current environment
+ *
+ * @vars: represents the struct of variables
+ *
  * Return: void.
+ *
  */
+
 void _env(vars_t *vars)
 {
-	unsigned int i;
+	unsigned int k;
 
-	for (i = 0; vars->env[i]; i++)
+	for (k = 0; vars->env[k]; k++)
 	{
-		_puts(vars->env[i]);
+		_puts(vars->env[k]);
 		_puts("\n");
 	}
 	vars->status = 0;
