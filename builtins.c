@@ -99,8 +99,8 @@ void _env(vars_t *vars)
 
 void new_setenv(vars_t *vars)
 {
+	char *v;
 	char **y;
-	char *var;
 
 	if (vars->av[1] == NULL || vars->av[2] == NULL)
 	{
@@ -113,8 +113,8 @@ void new_setenv(vars_t *vars)
 		add_y(vars);
 	else
 	{
-		var = add_value(vars->av[1], vars->av[2]);
-		if (var == NULL)
+		v = add_value(vars->av[1], vars->av[2]);
+		if (v == NULL)
 		{
 			print_error(vars, NULL);
 			free(vars->buffer);
@@ -124,9 +124,9 @@ void new_setenv(vars_t *vars)
 			exit(127);
 		}
 		free(*y);
-		*y = var;
+		*y = v;
 	}
-	vars->status = 0;
+	vars->root = 0;
 }
 
 /**
