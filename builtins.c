@@ -1,14 +1,18 @@
 #include "shell.h"
 
 /**
- * check_for_builtins - checks if the command is a builtin
+ * check_for_builtins - This function checks if the command is
+ * a builtin function
  *
- * @vars: variables
- * Return: pointer to the function or NULL
+ * @vars: represents the variables
+ *
+ * Return: returns the pointer to the function or returns NULL
+ *
  */
+
 void (*check_for_builtins(vars_t *vars))(vars_t *vars)
 {
-	unsigned int i;
+	unsigned int k;
 	builtins_t check[] = {
 		{"exit", new_exit},
 		{"env", _env},
@@ -17,21 +21,25 @@ void (*check_for_builtins(vars_t *vars))(vars_t *vars)
 		{NULL, NULL}
 	};
 
-	for (i = 0; check[i].f != NULL; i++)
+	for (k = 0; check[k].f != NULL; k++)
 	{
-		if (_strcmpr(vars->av[0], check[i].name) == 0)
+		if (_strcmpr(vars->av[0], check[k].name) == 0)
 			break;
 	}
-	if (check[i].f != NULL)
-		check[i].f(vars);
-	return (check[i].f);
+	if (check[k].f != NULL)
+		check[k].f(vars);
+	return (check[k].f);
 }
 
 /**
- * new_exit - exit program
- * @vars: variables
- * Return: void
+ * new_exit - This function exits program
+ *
+ * @vars: Represents the variables
+ *
+ * Return: The function returns void
+ *
  */
+
 void new_exit(vars_t *vars)
 {
 	int status;
