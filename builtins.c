@@ -88,14 +88,18 @@ void _env(vars_t *vars)
 }
 
 /**
- * new_setenv - create a new environment variable, or edit an existing variable
- * @vars: pointer to struct of variables
+ * new_setenv - This function will create a new environment variable
+ * or edit an existing variable
  *
- * Return: void
+ * @vars: This is a pointer to struct of variables
+ *
+ * Return: This function returns void
+ *
  */
+
 void new_setenv(vars_t *vars)
 {
-	char **key;
+	char **y;
 	char *var;
 
 	if (vars->av[1] == NULL || vars->av[2] == NULL)
@@ -104,9 +108,9 @@ void new_setenv(vars_t *vars)
 		vars->status = 2;
 		return;
 	}
-	key = find_key(vars->env, vars->av[1]);
-	if (key == NULL)
-		add_key(vars);
+	y = find_y(vars->env, vars->av[1]);
+	if (y == NULL)
+		add_y(vars);
 	else
 	{
 		var = add_value(vars->av[1], vars->av[2]);
@@ -119,8 +123,8 @@ void new_setenv(vars_t *vars)
 			free_env(vars->env);
 			exit(127);
 		}
-		free(*key);
-		*key = var;
+		free(*y);
+		*y = var;
 	}
 	vars->status = 0;
 }
