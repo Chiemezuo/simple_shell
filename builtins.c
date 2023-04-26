@@ -71,7 +71,7 @@ void new_exit(vars_t *vars)
  *
  * @vars: represents the struct of variables
  *
- * Return: void.
+ * Return: This function returns void.
  *
  */
 
@@ -84,7 +84,7 @@ void _env(vars_t *vars)
 		_puts(vars->env[k]);
 		_puts("\n");
 	}
-	vars->status = 0;
+	vars->root = 0;
 }
 
 /**
