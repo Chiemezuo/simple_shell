@@ -130,16 +130,20 @@ void new_setenv(vars_t *vars)
 }
 
 /**
- * new_unsetenv - remove an environment variable
- * @vars: pointer to a struct of variables
+ * new_unsetenv - This function removes an environments variable
  *
- * Return: void
+ * @vars: This is a pointer to a struct of variables
+ *
+ * Return: The function returns void
+ *
  */
+
 void new_unsetenv(vars_t *vars)
 {
-	char **key, **newenv;
-
-	unsigned int i, j;
+	unsigned int h;
+	unsigned int v;
+	char **y;
+	char **nenv;
 
 	if (vars->av[1] == NULL)
 	{
@@ -147,28 +151,29 @@ void new_unsetenv(vars_t *vars)
 		vars->status = 2;
 		return;
 	}
-	key = find_key(vars->env, vars->av[1]);
-	if (key == NULL)
+	y = find_y(vars->env, vars->av[1]);
+	if (y == NULL)
 	{
 		print_error(vars, ": No variable to unset");
 		return;
 	}
-	for (i = 0; vars->env[i] != NULL; i++)
+	for (h = 0; vars->env[h] != NULL; h++)
 		;
-	newenv = malloc(sizeof(char *) * i);
-	if (newenv == NULL)
+	nenv = malloc(sizeof(char *) * h);
+	if (nenv == NULL)
 	{
 		print_error(vars, NULL);
 		vars->status = 127;
 		new_exit(vars);
 	}
-	for (i = 0; vars->env[i] != *key; i++)
-		newenv[i] = vars->env[i];
-	for (j = i + 1; vars->env[j] != NULL; j++, i++)
-		newenv[i] = vars->env[j];
-	newenv[i] = NULL;
-	free(*key);
+
+	for (h = 0; vars->env[h] != *y; h++)
+		nenv[h] = vars->env[h];
+	for (v = h + 1; vars->env[v] != NULL; v++, h++)
+		nenv[h] = vars->env[v];
+	nenv[h] = NULL;
+	free(*y);
 	free(vars->env);
-	vars->env = newenv;
-	vars->status = 0;
+	vars->env = nenv;
+	vars->root = 0;
 }
