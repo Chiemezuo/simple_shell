@@ -142,7 +142,7 @@ void new_unsetenv(vars_t *vars)
 {
 	unsigned int h;
 	unsigned int v;
-	char **y;
+	char **o;
 	char **nenv;
 
 	if (vars->av[1] == NULL)
@@ -151,8 +151,8 @@ void new_unsetenv(vars_t *vars)
 		vars->status = 2;
 		return;
 	}
-	y = find_y(vars->env, vars->av[1]);
-	if (y == NULL)
+	o = find_y(vars->env, vars->av[1]);
+	if (o == NULL)
 	{
 		print_error(vars, ": No variable to unset");
 		return;
@@ -167,12 +167,12 @@ void new_unsetenv(vars_t *vars)
 		new_exit(vars);
 	}
 
-	for (h = 0; vars->env[h] != *y; h++)
+	for (h = 0; vars->env[h] != *o; h++)
 		nenv[h] = vars->env[h];
 	for (v = h + 1; vars->env[v] != NULL; v++, h++)
 		nenv[h] = vars->env[v];
 	nenv[h] = NULL;
-	free(*y);
+	free(*o);
 	free(vars->env);
 	vars->env = nenv;
 	vars->root = 0;
