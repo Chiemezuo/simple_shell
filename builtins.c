@@ -1,18 +1,13 @@
 #include "shell.h"
 
 /**
- * check_for_builtins - This function checks if the command is
- * a builtin function
- *
- * @vars: represents the variables
- *
- * Return: returns the pointer to the function or returns NULL
- *
+ * check_for_builtins - checks if the command is a builtin
+ * @vars: variables
+ * Return: pointer to the function or NULL
  */
-
 void (*check_for_builtins(vars_t *vars))(vars_t *vars)
 {
-	unsigned int k;
+	unsigned int i;
 	builtins_t check[] = {
 		{"exit", new_exit},
 		{"env", _env},
@@ -21,35 +16,31 @@ void (*check_for_builtins(vars_t *vars))(vars_t *vars)
 		{NULL, NULL}
 	};
 
-	for (k = 0; check[k].f != NULL; k++)
+	for (i = 0; check[i].f != NULL; i++)
 	{
-		if (_strcmpr(vars->av[0], check[k].name) == 0)
+		if (_strcmpr(vars->av[0], check[i].name) == 0)
 			break;
 	}
-	if (check[k].f != NULL)
-		check[k].f(vars);
-	return (check[k].f);
+	if (check[i].f != NULL)
+		check[i].f(vars);
+	return (check[i].f);
 }
 
 /**
- * new_exit - This function exits program
- *
- * @vars: Represents the variables
- *
- * Return: The function returns void
- *
+ * new_exit - exit program
+ * @vars: variables
+ * Return: void
  */
-
 void new_exit(vars_t *vars)
 {
-	int root;
+	int status;
 
 	if (_strcmpr(vars->av[0], "exit") == 0 && vars->av[1] != NULL)
 	{
-		root = _atoi(vars->av[1]);
-		if (root == -1)
+		status = _atoi(vars->av[1]);
+		if (status == -1)
 		{
-			vars->root = 2;
+			vars->status = 2;
 			print_error(vars, ": Illegal number: ");
 			_puts2(vars->av[1]);
 			_puts2("\n");
@@ -57,50 +48,42 @@ void new_exit(vars_t *vars)
 			vars->commands = NULL;
 			return;
 		}
-		vars->root = root;
+		vars->status = status;
 	}
 	free(vars->buffer);
 	free(vars->av);
 	free(vars->commands);
 	free_env(vars->env);
-	exit(vars->root);
+	exit(vars->status);
 }
 
 /**
- * _env - This function prints the current environment
- *
- * @vars: represents the struct of variables
- *
- * Return: This function returns void.
- *
+ * _env - prints the current environment
+ * @vars: struct of variables
+ * Return: void.
  */
-
 void _env(vars_t *vars)
 {
-	unsigned int k;
+	unsigned int i;
 
-	for (k = 0; vars->env[k]; k++)
+	for (i = 0; vars->env[i]; i++)
 	{
-		_puts(vars->env[k]);
+		_puts(vars->env[i]);
 		_puts("\n");
 	}
-	vars->root = 0;
+	vars->status = 0;
 }
 
 /**
- * new_setenv - This function will create a new environment variable
- * or edit an existing variable
+ * new_setenv - create a new environment variable, or edit an existing variable
+ * @vars: pointer to struct of variables
  *
- * @vars: This is a pointer to struct of variables
- *
- * Return: This function returns void
- *
+ * Return: void
  */
-
 void new_setenv(vars_t *vars)
 {
-	char *v;
-	char **y;
+	char **key;
+	char *var;
 
 	if (vars->av[1] == NULL || vars->av[2] == NULL)
 	{
@@ -108,13 +91,13 @@ void new_setenv(vars_t *vars)
 		vars->status = 2;
 		return;
 	}
-	y = find_y(vars->env, vars->av[1]);
-	if (y == NULL)
-		add_y(vars);
+	key = find_key(vars->env, vars->av[1]);
+	if (key == NULL)
+		add_key(vars);
 	else
 	{
-		v = add_value(vars->av[1], vars->av[2]);
-		if (v == NULL)
+		var = add_value(vars->av[1], vars->av[2]);
+		if (var == NULL)
 		{
 			print_error(vars, NULL);
 			free(vars->buffer);
@@ -123,27 +106,23 @@ void new_setenv(vars_t *vars)
 			free_env(vars->env);
 			exit(127);
 		}
-		free(*y);
-		*y = v;
+		free(*key);
+		*key = var;
 	}
-	vars->root = 0;
+	vars->status = 0;
 }
 
 /**
- * new_unsetenv - This function removes an environments variable
+ * new_unsetenv - remove an environment variable
+ * @vars: pointer to a struct of variables
  *
- * @vars: This is a pointer to a struct of variables
- *
- * Return: The function returns void
- *
+ * Return: void
  */
-
 void new_unsetenv(vars_t *vars)
 {
-	unsigned int h;
-	unsigned int v;
-	char **o;
-	char **nenv;
+	char **key, **newenv;
+
+	unsigned int i, j;
 
 	if (vars->av[1] == NULL)
 	{
@@ -151,29 +130,28 @@ void new_unsetenv(vars_t *vars)
 		vars->status = 2;
 		return;
 	}
-	o = find_y(vars->env, vars->av[1]);
-	if (o == NULL)
+	key = find_key(vars->env, vars->av[1]);
+	if (key == NULL)
 	{
 		print_error(vars, ": No variable to unset");
 		return;
 	}
-	for (h = 0; vars->env[h] != NULL; h++)
+	for (i = 0; vars->env[i] != NULL; i++)
 		;
-	nenv = malloc(sizeof(char *) * h);
-	if (nenv == NULL)
+	newenv = malloc(sizeof(char *) * i);
+	if (newenv == NULL)
 	{
 		print_error(vars, NULL);
 		vars->status = 127;
 		new_exit(vars);
 	}
-
-	for (h = 0; vars->env[h] != *o; h++)
-		nenv[h] = vars->env[h];
-	for (v = h + 1; vars->env[v] != NULL; v++, h++)
-		nenv[h] = vars->env[v];
-	nenv[h] = NULL;
-	free(*o);
+	for (i = 0; vars->env[i] != *key; i++)
+		newenv[i] = vars->env[i];
+	for (j = i + 1; vars->env[j] != NULL; j++, i++)
+		newenv[i] = vars->env[j];
+	newenv[i] = NULL;
+	free(*key);
 	free(vars->env);
-	vars->env = nenv;
-	vars->root = 0;
+	vars->env = newenv;
+	vars->status = 0;
 }
